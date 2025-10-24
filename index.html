@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ciberseguridad Inteligente © Hector Camacho</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+  background: #f7fafd;
+}
+.section {
+  border: 1px solid #004085;
+  padding: 20px;
+  border-radius: 10px;
+  background: #fff;
+  max-width: 700px;
+  margin: 30px auto;
+}
+h1, h2 {
+  color: #004085;
+}
+.result {
+  padding: 12px;
+  margin-top: 18px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+.safe {
+  background-color: #d4edda;
+  color: #155724;
+}
+.warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+#phishingQuiz {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.radio-group {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.radio-group input[type="radio"] {
+  margin-right: 12px;
+  margin-top: 2px;
+  accent-color: #004085;
+}
+.radio-group label {
+  font-weight: normal;
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  cursor: pointer;
+}
+button[type="button"], button {
+  background: #004085;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 22px;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-top: 9px;
+}
+button[type="button"]:hover, button:hover {
+  background: #0360b8;
+}
+input, select {
+  padding: 7px;
+  margin: 7px 0 12px 0;
+  width: 100%;
+  max-width: 300px;
+  border: 1px solid #c2c2c2;
+  border-radius: 4px;
+}
+input[type="text"], input[type="password"] {
+  width: 95%;
+}
+@media (max-width: 600px) {
+  .section {
+    padding: 8px;
+  }
+}
+h1 {
+  text-align: center;
+  margin-top: 36px;
+  letter-spacing: 1px;
+  font-size: 2.2rem;
+}
+</style>
+</head>
+<body>
+
+<h1>Ciberseguridad Inteligente: Herramientas para la Vida Diaria © Hector Camacho</h1>
+
+<!-- Ajusta solo esta sección del Generador de Contraseñas -->
+
+<div class="section" id="genPassSection">
+  <h2>Generador de Contraseñas</h2>
+  <label for="length">Longitud:</label>
+  <select id="length">
+    <option value="12" selected>12</option>
+    <option value="16">16</option>
+    <option value="20">20</option>
+  </select>
+  <div class="genoptions">
+    <label><input type="checkbox" id="includeUpper" checked /> Incluir letras mayúsculas</label>
+    <label><input type="checkbox" id="includeLower" checked /> Incluir letras minúsculas</label>
+    <label><input type="checkbox" id="includeNumbers" checked /> Incluir números</label>
+    <label><input type="checkbox" id="includeSymbols" /> Incluir símbolos (!@#$...)</label>
+  </div>
+  <button onclick="generatePassword()">Generar contraseña segura</button>
+  <input type="text" id="generatedPass" readonly />
+</div>
+
+<style>
+.genoptions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 30px;
+  max-width: 600px;
+  margin-bottom: 10px;
+  margin-top: 5px;
+}
+.genoptions label {
+  display: flex;
+  align-items: center;
+  font-weight: normal;
+  margin-bottom: 3px;
+}
+</style>
+
+
+<!-- EVALUADOR DE CONTRASEÑAS + HIBP -->
+<div class="section" id="evalPassSection">
+  <h2>Evaluar Contraseña</h2>
+  <label for="passwordInput">Introduce tu contraseña:</label>
+  <input type="password" id="passwordInput" />
+  <button onclick="evaluatePassword()">Evaluar contraseña</button>
+  <div id="evalResult"></div>
+  <div id="pwnedResult"></div>
+</div>
+
+<!-- EXPLICACIÓN MFA -->
+<div class="section" id="mfaSection">
+  <h2>¿Qué es MFA? (Autenticación multifactor)</h2>
+  <p>
+    La autenticación multifactor añade una capa extra de protección a tus cuentas.<br>
+    Ejemplo: además de la contraseña, debes introducir un código que recibes en tu teléfono o app como Google Authenticator.
+  </p>
+  <p><button onclick="simulateMFA()">Simular activación MFA</button></p>
+  <div id="mfaSimResult"></div>
+</div>
+
+<!-- EJERCICIO PHISHING -->
+<div class="section" id="phishingSection">
+  <h2>Ejercicio básico de detección de phishing</h2>
+  <p>¿Cuál de los siguientes correos parece phishing?</p>
+  <form id="phishingQuiz">
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="phishing" value="no" />
+        Correo de banco con remitente oficial, sin errores.
+      </label>
+    </div>
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="phishing" value="yes" />
+        Correo solicitando datos urgentes y con enlace extraño.
+      </label>
+    </div>
+    <div class="radio-group">
+      <label>
+        <input type="radio" name="phishing" value="no" />
+        Correo de amigo sin solicitud de datos ni enlaces.
+      </label>
+    </div>
+    <button type="button" onclick="checkPhishing()">Ver resultado</button>
+  </form>
+  <div id="phishingResult"></div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsSHA/2.4.2/sha.js"></script>
+<script>
+// GENERADOR DE CONTRASEÑAS
+function generatePassword() {
+  const length = parseInt(document.getElementById('length').value);
+  const upper = document.getElementById('includeUpper').checked;
+  const lower = document.getElementById('includeLower').checked;
+  const numbers = document.getElementById('includeNumbers').checked;
+  const symbols = document.getElementById('includeSymbols').checked;
+  const upperSet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const lowerSet = 'abcdefghijklmnopqrstuvwxyz';
+  const numberSet = '0123456789';
+  const symbolSet = '!@#$%^&*()-_=+[]{};:,.<>?';
+  let charset = '';
+  if (upper) charset += upperSet;
+  if (lower) charset += lowerSet;
+  if (numbers) charset += numberSet;
+  if (symbols) charset += symbolSet;
+  if(charset.length === 0) {
+    alert('Selecciona al menos un tipo de carácter');
+    return;
+  }
+  let password = '';
+  for (let i=0; i<length; i++) {
+    password += charset.charAt(Math.floor(Math.random() * charset.length));
+  }
+  document.getElementById('generatedPass').value = password;
+}
+
+// EVALUADOR DE CONTRASEÑAS
+function evaluatePassword() {
+  const pass = document.getElementById('passwordInput').value;
+  const evalDiv = document.getElementById('evalResult');
+  const pwnedDiv = document.getElementById('pwnedResult');
+  evalDiv.innerHTML = '';
+  pwnedDiv.innerHTML = '';
+  if(pass.length < 8) {
+    evalDiv.innerHTML = '<div class="result error">La contraseña es demasiado corta. Mínimo 8 caracteres.</div>';
+    return;
+  }
+  let score = 0;
+  if(/[A-Z]/.test(pass)) score++;
+  if(/[a-z]/.test(pass)) score++;
+  if(/[0-9]/.test(pass)) score++;
+  if(/[^A-Za-z0-9]/.test(pass)) score++;
+  if(pass.length >= 12) score++;
+  let msg = '';
+  if(score <= 2) {
+    msg = '<div class="result warning">Contraseña débil. Añade mayúsculas, números y símbolos.</div>';
+  } else if(score === 3) {
+    msg = '<div class="result warning">Contraseña moderada. Considera aumentar la longitud y añadir símbolos.</div>';
+  } else {
+    msg = '<div class="result safe">Contraseña fuerte.</div>';
+  }
+  evalDiv.innerHTML = msg;
+  // Consulta a Have I Been Pwned
+  checkPwnedPassword(pass);
+}
+
+async function checkPwnedPassword(pass) {
+  const shaObj = new jsSHA("SHA-1", "TEXT");
+  shaObj.update(pass);
+  const hash = shaObj.getHash("HEX").toUpperCase();
+  const prefix = hash.substring(0,5);
+  const suffix = hash.substring(5);
+  try {
+    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
+    if(!res.ok) throw new Error('Error en consulta a HIBP');
+    const text = await res.text();
+    const lines = text.split('\n');
+    let found = false;
+    for(let line of lines) {
+      const [hashSuffix, count] = line.split(':');
+      if(hashSuffix.trim() === suffix) {
+        document.getElementById('pwnedResult').innerHTML = `<div class="result error">ADVERTENCIA: Tu contraseña ha sido expuesta en ${count.trim()} filtraciones. Considera cambiarla.</div>`;
+        found = true;
+        break;
+      }
+    }
+    if(!found) {
+      document.getElementById('pwnedResult').innerHTML = `<div class="result safe">Tu contraseña no aparece en brechas conocidas.</div>`;
+    }
+  } catch(e) {
+    document.getElementById('pwnedResult').innerHTML = `<div class="result warning">No se pudo verificar la contraseña con HIBP.</div>`;
+  }
+}
+
+// MFA SIMULADOR
+function simulateMFA() {
+  const mfaDiv = document.getElementById('mfaSimResult');
+  mfaDiv.innerHTML = `
+    <ol>
+      <li>Accede a la configuración de seguridad de tu cuenta.</li>
+      <li>Selecciona "Activar autenticación multifactor" (2FA/MFA).</li>
+      <li>Descarga una app como Google Authenticator o Authy.</li>
+      <li>Escanea el código QR que aparece en la pantalla.</li>
+      <li>Introduce el código temporal generado por la app.</li>
+      <li>¡Listo! Tu cuenta tiene doble protección.</li>
+    </ol>
+  `;
+}
+
+// PHISHING QUIZ
+function checkPhishing() {
+  const radios = document.getElementsByName('phishing');
+  let selected = null;
+  for(let r of radios) {
+    if(r.checked) selected = r.value;
+  }
+  const resultDiv = document.getElementById('phishingResult');
+  if(selected === 'yes') {
+    resultDiv.innerHTML = '<div class="result safe">Correcto: Ese correo es phishing. Nunca des información ni hagas clic en enlaces sospechosos.</div>';
+  } else if(selected === 'no') {
+    resultDiv.innerHTML = '<div class="result error">Incorrecto: Ese correo no es seguro para confiar. Debes aprender a identificar phishing.</div>';
+  } else {
+    resultDiv.innerHTML = '<div class="result warning">Por favor, selecciona una opción.</div>';
+  }
+}
+</script>
+</body>
+</html>
